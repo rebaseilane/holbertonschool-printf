@@ -41,7 +41,7 @@ int print_string(va_list args)
 }
 
 /**
- * print_percent - prints %
+ * print_percent - prints '%'
  *
  * Return: 1
  */
@@ -49,4 +49,45 @@ int print_percent(void)
 {
     write(1, "%", 1);
     return (1);
+}
+
+/**
+ * print_int - prints an integer
+ * @args: list of arguments
+ *
+ * Return: number of characters printed
+ */
+int print_int(va_list args)
+{
+    int n = va_arg(args, int);
+    int count = 0;
+    char buffer[12]; /* enough for -2147483648 + '\0' */
+    int i = 0, j;
+    unsigned int num;
+
+    if (n < 0)
+    {
+        write(1, "-", 1);
+        count++;
+        num = -n;
+    }
+    else
+        num = n;
+
+    if (num == 0)
+    {
+        write(1, "0", 1);
+        return (count + 1);
+    }
+
+    while (num > 0)
+    {
+        buffer[i++] = (num % 10) + '0';
+        num /= 10;
+    }
+
+    for (j = i - 1; j >= 0; j--)
+        count += write(1, &buffer[j], 1);
+
+    return (count);
 }
