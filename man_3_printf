@@ -1,0 +1,65 @@
+.TH _PRINTF 3 "24 Feb 2026" "1.0" "holberton printf function"
+.SH NAME
+_printf \- produces output according to a format string
+.SH SYNOPSIS
+#include "main.h"
+
+int _printf(const char *format, ...);
+.SH DESCRIPTION
+The \f_printf\fP function writes output to the standard output (stdout) according to the format specified in the \f=format\fP string. 
+
+The format string may contain plain characters, which are written as-is, and conversion specifiers, introduced by the percent character '%' to indicate that an argument should be formatted and inserted.
+
+Supported conversion specifiers:
+
+.TP
+\fB%c\fR
+Prints a single character. The corresponding argument must be an int.
+
+.TP
+\fB%s\fR
+Prints a string. The corresponding argument must be a char *. If the argument is NULL, "(null)" is printed.
+
+.TP
+\fB%%\fR
+Prints a literal '%' character. No argument is consumed.
+
+.TP
+\fB%d\fR, \fBi\fR
+Prints a signed decimal integer. The corresponding argument must be an int.
+
+.SH RETURN VALUE
+On success, \f_printf\fP returns the number of characters printed (excluding the null byte used internally). 
+
+If the format string is NULL, or a '%' is followed by a null byte, \f_printf\fP returns -1.
+
+.SH ERRORS
+If a conversion specifier is not recognized, the '%' and the unknown specifier are printed literally.
+
+.SH EXAMPLES
+The following example prints a string and a character:
+
+.EX
+_printf("Hello %s%c\n", "World", '!');
+.END
+
+This prints:
+Hello World!
+
+The following example prints a percent sign:
+.EX
+_printf("100%% complete\n");
+.END
+
+.SH NOTES
+This function does not handle:
+.RS
+- Flag characters
+- Field width
+- Precision
+- Length modifiers
+.RE
+It is a simplified version of the standard \fCprintf\fR function.
+
+.SH SEE ALSO
+printf(3), write(2), va_start(3), va_end(3), va_arg(3)
