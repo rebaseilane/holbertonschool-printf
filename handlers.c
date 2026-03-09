@@ -1,190 +1,7 @@
 #include "main.h"
 
 /**
- * print_char - prints a character
- * @args: list of arguments
- * Return: 1
- */
-int print_char(va_list args)
-{
-    char c = va_arg(args, int);
-    write(1, &c, 1);
-    return (1);
-}
-
-/**
- * print_string - prints a string
- * @args: list of arguments
- * Return: length of string
- */
-int print_string(va_list args)
-{
-    char *str = va_arg(args, char *);
-    int len = 0;
-
-    if (!str)
-        str = "(null)";
-
-    while (str[len])
-        len++;
-
-    write(1, str, len);
-    return (len);
-}
-
-/**
- * print_percent - prints '%'
- * Return: 1
- */
-int print_percent(void)
-{
-    write(1, "%", 1);
-    return (1);
-}
-
-/**
- * print_int - prints an integer
- * @args: list of arguments
- * Return: number of characters printed
- */
-int print_int(va_list args)
-{
-    int n = va_arg(args, int);
-    char buffer[12]; /* enough for -2147483648 + '\0' */
-    int i = 0, j, count = 0;
-    unsigned int num;
-
-    if (n < 0)
-    {
-        write(1, "-", 1);
-        count++;
-        num = -n;
-    }
-    else
-        num = n;
-
-    if (num == 0)
-    {
-        write(1, "0", 1);
-        return count + 1;
-    }
-
-    while (num > 0)
-    {
-        buffer[i++] = (num % 10) + '0';
-        num /= 10;
-    }
-
-    for (j = i - 1; j >= 0; j--)
-        count += write(1, &buffer[j], 1);
-
-    return count;
-}
-
-/**
- * print_binary - prints an unsigned int in binary
- * @args: list of arguments
- * Return: number of characters printed
- */
-int print_binary(va_list args)
-{
-    unsigned int n = va_arg(args, unsigned int);
-    char buffer[32];
-    int i = 0, count = 0;
-
-    if (n == 0)
-    {
-        write(1, "0", 1);
-        return 1;
-    }
-
-    while (n > 0)
-    {
-        buffer[i++] = (n % 2) + '0';
-        n /= 2;
-    }
-
-    for (i = i - 1; i >= 0; i--)
-        count += write(1, &buffer[i], 1);
-
-    return count;
-}
-
-/**
- * print_unsigned - prints unsigned integer
- */
-int print_unsigned(va_list args)
-{
-    unsigned int n = va_arg(args, unsigned int);
-    char buffer[20];
-    int i = 0, count = 0;
-
-    if (n == 0)
-        return write(1, "0", 1);
-
-    while (n > 0)
-    {
-        buffer[i++] = (n % 10) + '0';
-        n /= 10;
-    }
-
-    while (i--)
-        count += write(1, &buffer[i], 1);
-
-    return count;
-}
-
-/**
- * print_octal - prints number in octal
- */
-int print_octal(va_list args)
-{
-    unsigned int n = va_arg(args, unsigned int);
-    char buffer[20];
-    int i = 0, count = 0;
-
-    if (n == 0)
-        return write(1, "0", 1);
-
-    while (n > 0)
-    {
-        buffer[i++] = (n % 8) + '0';
-        n /= 8;
-    }
-
-    while (i--)
-        count += write(1, &buffer[i], 1);
-
-    return count;
-}
-
-/**
- * print_hex - prints hexadecimal
- */
-int print_hex(va_list args, int uppercase)
-{
-    unsigned int n = va_arg(args, unsigned int);
-    char buffer[20];
-    char *hex = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
-    int i = 0, count = 0;
-
-    if (n == 0)
-        return write(1, "0", 1);
-
-    while (n > 0)
-    {
-        buffer[i++] = hex[n % 16];
-        n /= 16;
-    }
-
-    while (i--)
-        count += write(1, &buffer[i], 1);
-
-    return count;
-}
-
-/**
- * buffer
+ * flush_buffer - writes buffer to stdout
  */
 void flush_buffer(char *buffer, int *buff_ind)
 {
@@ -193,4 +10,255 @@ void flush_buffer(char *buffer, int *buff_ind)
         write(1, buffer, *buff_ind);
         *buff_ind = 0;
     }
+}
+
+/**
+ * print_char - prints a character
+ */
+int print_char(va_list args, char *buffer, int *buff_ind)
+{
+    char c = va_arg(args, int);
+
+    buffer[(*buff_ind)++] = c;
+
+    if (*buff_ind == BUFFER_SIZE)
+        flush_buffer(buffer, buff_ind);
+
+    return (1);
+}
+
+/**
+ * print_percent - prints %
+ */
+int print_percent(char *buffer, int *buff_ind)
+{
+    buffer[(*buff_ind)++] = '%';
+
+    if (*buff_ind == BUFFER_SIZE)
+        flush_buffer(buffer, buff_ind);
+
+    return (1);
+}
+
+/**
+ * print_string - prints string
+ */
+int print_string(va_list args, char *buffer, int *buff_ind)
+{
+    char *str = va_arg(args, char *);
+    int count = 0;
+
+    if (!str)
+        str = "(null)";
+
+    while (*str)
+    {
+        buffer[(*buff_ind)++] = *str++;
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
+}
+
+/**
+ * print_int - prints integer
+ */
+int print_int(va_list args, char *buffer, int *buff_ind)
+{
+    int n = va_arg(args, int);
+    unsigned int num;
+    char temp[12];
+    int i = 0, count = 0;
+
+    if (n < 0)
+    {
+        buffer[(*buff_ind)++] = '-';
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        num = -((unsigned int)n);
+    }
+    else
+        num = n;
+
+    if (num == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        return (count + 1);
+    }
+
+    while (num)
+    {
+        temp[i++] = (num % 10) + '0';
+        num /= 10;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
+}
+
+/**
+ * print_binary - prints binary
+ */
+int print_binary(va_list args, char *buffer, int *buff_ind)
+{
+    unsigned int n = va_arg(args, unsigned int);
+    char temp[32];
+    int i = 0, count = 0;
+
+    if (n == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        return (1);
+    }
+
+    while (n)
+    {
+        temp[i++] = (n % 2) + '0';
+        n /= 2;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
+}
+
+/**
+ * print_unsigned - prints unsigned int
+ */
+int print_unsigned(va_list args, char *buffer, int *buff_ind)
+{
+    unsigned int n = va_arg(args, unsigned int);
+    char temp[20];
+    int i = 0, count = 0;
+
+    if (n == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        return (1);
+    }
+
+    while (n)
+    {
+        temp[i++] = (n % 10) + '0';
+        n /= 10;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
+}
+
+/**
+ * print_octal - prints octal
+ */
+int print_octal(va_list args, char *buffer, int *buff_ind)
+{
+    unsigned int n = va_arg(args, unsigned int);
+    char temp[20];
+    int i = 0, count = 0;
+
+    if (n == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        return (1);
+    }
+
+    while (n)
+    {
+        temp[i++] = (n % 8) + '0';
+        n /= 8;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
+}
+
+/**
+ * print_hex - prints hexadecimal
+ */
+int print_hex(va_list args, int uppercase, char *buffer, int *buff_ind)
+{
+    unsigned int n = va_arg(args, unsigned int);
+    char temp[20];
+    char *hex = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
+    int i = 0, count = 0;
+
+    if (n == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+
+        return (1);
+    }
+
+    while (n)
+    {
+        temp[i++] = hex[n % 16];
+        n /= 16;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return (count);
 }

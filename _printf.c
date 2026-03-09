@@ -1,11 +1,7 @@
 #include "main.h"
 
-#define BUFFER_SIZE 1024
-
 /**
  * _printf - produces output according to a format
- * @format: format string
- * Return: number of characters printed
  */
 int _printf(const char *format, ...)
 {
@@ -13,7 +9,6 @@ int _printf(const char *format, ...)
     char buffer[BUFFER_SIZE];
     int buff_ind = 0;
     int i = 0, count = 0;
-    char c;
 
     if (!format)
         return (-1);
@@ -37,41 +32,44 @@ int _printf(const char *format, ...)
             if (!format[i])
                 return (-1);
 
-            flush_buffer(buffer, &buff_ind);
-
             if (format[i] == 'c')
-            {
-                c = va_arg(args, int);
-                count += write(1, &c, 1);
-            }
+                count += print_char(args, buffer, &buff_ind);
             else if (format[i] == 's')
-                count += print_string(args);
+                count += print_string(args, buffer, &buff_ind);
             else if (format[i] == '%')
-                count += print_percent();
+                count += print_percent(buffer, &buff_ind);
             else if (format[i] == 'd' || format[i] == 'i')
-                count += print_int(args);
+                count += print_int(args, buffer, &buff_ind);
             else if (format[i] == 'b')
-                count += print_binary(args);
+                count += print_binary(args, buffer, &buff_ind);
             else if (format[i] == 'u')
-                count += print_unsigned(args);
+                count += print_unsigned(args, buffer, &buff_ind);
             else if (format[i] == 'o')
-                count += print_octal(args);
+                count += print_octal(args, buffer, &buff_ind);
             else if (format[i] == 'x')
-                count += print_hex(args, 0);
+                count += print_hex(args, 0, buffer, &buff_ind);
             else if (format[i] == 'X')
-                count += print_hex(args, 1);
+                count += print_hex(args, 1, buffer, &buff_ind);
             else
             {
-                write(1, "%", 1);
-                write(1, &format[i], 1);
+                if (buff_ind == BUFFER_SIZE)
+                    flush_buffer(buffer, &buff_ind);
+
+                buffer[buff_ind++] = '%';
+
+                if (buff_ind == BUFFER_SIZE)
+                    flush_buffer(buffer, &buff_ind);
+
+                buffer[buff_ind++] = format[i];
+
                 count += 2;
             }
         }
+
         i++;
     }
 
     flush_buffer(buffer, &buff_ind);
-
     va_end(args);
 
     return (count);
