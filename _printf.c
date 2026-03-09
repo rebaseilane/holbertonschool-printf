@@ -65,6 +65,9 @@ int _printf(const char *format, ...)
                 case 'S':  /* Custom specifier */
                     count += print_S(args, buffer, &buff_ind);
                     break;
+		case 'p':
+                    count += print_pointer(args, buffer, &buff_ind);
+                    break;
                 default:
                     if (buff_ind == BUFFER_SIZE)
                         flush_buffer(buffer, &buff_ind);

@@ -18,6 +18,7 @@ int print_unsigned(va_list args, char *buffer, int *buff_ind);
 int print_octal(va_list args, char *buffer, int *buff_ind);
 int print_hex(va_list args, int uppercase, char *buffer, int *buff_ind);
 int print_S(va_list args, char *buffer, int *buff_ind);
+int print_pointer(va_list args, char *buffer, int *buff_ind);
 
 void flush_buffer(char *buffer, int *buff_ind);
 

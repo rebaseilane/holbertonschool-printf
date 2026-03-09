@@ -307,3 +307,51 @@ int print_hex(va_list args, int uppercase, char *buffer, int *buff_ind)
 
     return (count);
 }
+
+/**
+ * print_pointer - prints pointer
+ */
+int print_pointer(va_list args, char *buffer, int *buff_ind)
+{
+    void *ptr = va_arg(args, void *);
+    unsigned long n;
+    char temp[20];
+    char *hex = "0123456789abcdef";
+    int i = 0, count = 0;
+
+    if (!ptr)
+    {
+        count += print_string(args, buffer, buff_ind); /* print (nil) */
+        return count;
+    }
+
+    /* cast pointer to unsigned long for printing */
+    n = (unsigned long) ptr;
+
+    buffer[(*buff_ind)++] = '0';
+    buffer[(*buff_ind)++] = 'x';
+    count += 2;
+
+    if (n == 0)
+    {
+        buffer[(*buff_ind)++] = '0';
+        count++;
+        return count;
+    }
+
+    while (n)
+    {
+        temp[i++] = hex[n % 16];
+        n /= 16;
+    }
+
+    while (i--)
+    {
+        buffer[(*buff_ind)++] = temp[i];
+        count++;
+        if (*buff_ind == BUFFER_SIZE)
+            flush_buffer(buffer, buff_ind);
+    }
+
+    return count;
+}

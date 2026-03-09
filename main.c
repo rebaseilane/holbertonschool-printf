@@ -2,6 +2,8 @@
 
 int main(void)
 {
+    int x = 42;
+
     _printf("Char: %c\n", 'A');
     _printf("String: %s\n", "Hello");
     _printf("Percent: %%\n");
@@ -12,5 +14,7 @@ int main(void)
     _printf("Hex lowercase: %x\n", 300);
     _printf("Hex uppercase: %X\n", 300);
     _printf("%S\n", "Best\nSchool");
+    _printf("Pointer: %p\n", &x);
+
     return 0;
 }
