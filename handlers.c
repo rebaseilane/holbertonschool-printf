@@ -60,7 +60,52 @@ int print_string(va_list args, char *buffer, int *buff_ind)
             flush_buffer(buffer, buff_ind);
     }
 
-    return (count);
+    return count;
+}
+
+/**
+ * print_S - prints string with non-printables as \xHH
+ */
+int print_S(va_list args, char *buffer, int *buff_ind)
+{
+    char *str = va_arg(args, char *);
+    int count = 0;
+    char hex[3];
+    int i;
+
+    if (!str)
+        str = "(null)";
+
+    while (*str)
+    {
+        if ((*str > 0 && *str < 32) || *str >= 127)
+        {
+            buffer[(*buff_ind)++] = '\\';
+            buffer[(*buff_ind)++] = 'x';
+            hex[0] = "0123456789ABCDEF"[*str / 16];
+            hex[1] = "0123456789ABCDEF"[*str % 16];
+            hex[2] = '\0';
+
+            for (i = 0; i < 2; i++)
+            {
+                buffer[(*buff_ind)++] = hex[i];
+                if (*buff_ind == BUFFER_SIZE)
+                    flush_buffer(buffer, buff_ind);
+            }
+
+            count += 4; /* \xHH */
+        }
+        else
+        {
+            buffer[(*buff_ind)++] = *str;
+            count++;
+            if (*buff_ind == BUFFER_SIZE)
+                flush_buffer(buffer, buff_ind);
+        }
+        str++;
+    }
+
+    return count;
 }
 
 /**

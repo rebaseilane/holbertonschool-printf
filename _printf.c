@@ -32,40 +32,52 @@ int _printf(const char *format, ...)
             if (!format[i])
                 return (-1);
 
-            if (format[i] == 'c')
-                count += print_char(args, buffer, &buff_ind);
-            else if (format[i] == 's')
-                count += print_string(args, buffer, &buff_ind);
-            else if (format[i] == '%')
-                count += print_percent(buffer, &buff_ind);
-            else if (format[i] == 'd' || format[i] == 'i')
-                count += print_int(args, buffer, &buff_ind);
-            else if (format[i] == 'b')
-                count += print_binary(args, buffer, &buff_ind);
-            else if (format[i] == 'u')
-                count += print_unsigned(args, buffer, &buff_ind);
-            else if (format[i] == 'o')
-                count += print_octal(args, buffer, &buff_ind);
-            else if (format[i] == 'x')
-                count += print_hex(args, 0, buffer, &buff_ind);
-            else if (format[i] == 'X')
-                count += print_hex(args, 1, buffer, &buff_ind);
-            else
+            switch (format[i])
             {
-                if (buff_ind == BUFFER_SIZE)
-                    flush_buffer(buffer, &buff_ind);
+                case 'c':
+                    count += print_char(args, buffer, &buff_ind);
+                    break;
+                case 's':
+                    count += print_string(args, buffer, &buff_ind);
+                    break;
+                case '%':
+                    count += print_percent(buffer, &buff_ind);
+                    break;
+                case 'd':
+                case 'i':
+                    count += print_int(args, buffer, &buff_ind);
+                    break;
+                case 'b':
+                    count += print_binary(args, buffer, &buff_ind);
+                    break;
+                case 'u':
+                    count += print_unsigned(args, buffer, &buff_ind);
+                    break;
+                case 'o':
+                    count += print_octal(args, buffer, &buff_ind);
+                    break;
+                case 'x':
+                    count += print_hex(args, 0, buffer, &buff_ind);
+                    break;
+                case 'X':
+                    count += print_hex(args, 1, buffer, &buff_ind);
+                    break;
+                case 'S':  /* Custom specifier */
+                    count += print_S(args, buffer, &buff_ind);
+                    break;
+                default:
+                    if (buff_ind == BUFFER_SIZE)
+                        flush_buffer(buffer, &buff_ind);
 
-                buffer[buff_ind++] = '%';
+                    buffer[buff_ind++] = '%';
 
-                if (buff_ind == BUFFER_SIZE)
-                    flush_buffer(buffer, &buff_ind);
+                    if (buff_ind == BUFFER_SIZE)
+                        flush_buffer(buffer, &buff_ind);
 
-                buffer[buff_ind++] = format[i];
-
-                count += 2;
+                    buffer[buff_ind++] = format[i];
+                    count += 2;
             }
         }
-
         i++;
     }
 
