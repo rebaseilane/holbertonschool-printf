@@ -182,3 +182,15 @@ int print_hex(va_list args, int uppercase)
 
     return count;
 }
+
+/**
+ * buffer
+ */
+void flush_buffer(char *buffer, int *buff_ind)
+{
+    if (*buff_ind > 0)
+    {
+        write(1, buffer, *buff_ind);
+        *buff_ind = 0;
+    }
+}
